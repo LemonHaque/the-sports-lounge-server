@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
 // middleware
 app.use(cors());
-app.use(express());
+app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ulul2vm.mongodb.net/?retryWrites=true&w=majority`;
@@ -27,11 +27,43 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const classesCollection = client.db("sportsDb").collection("classes");
+        const classeCollection = client.db("sportsDb").collection("classes");
+        const instructorCollection = client.db("sportsDb").collection("instructors");
+        const cartCollection = client.db("sportsDb").collection("carts");
 
         app.get('/classes', async (req, res) => {
-            const result = await classesCollection.find({}).toArray();
+            const result = await classeCollection.find({}).toArray();
             res.send(result)
+        })
+        app.get('/instructors', async (req, res) => {
+            const result = await instructorCollection.find({}).toArray();
+            res.send(result)
+        })
+
+
+        // cart collection api
+        app.get('/carts', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([]);
+            }
+            const query = { email: email }
+            const result = await cartCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+        app.post('/carts', async (req, res) => {
+            const item = req.body;
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        });
+
+        app.delete('/carts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
 
         })
 
