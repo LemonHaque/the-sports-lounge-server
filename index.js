@@ -27,12 +27,18 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const classeCollection = client.db("sportsDb").collection("classes");
+        const classCollection = client.db("sportsDb").collection("classes");
         const instructorCollection = client.db("sportsDb").collection("instructors");
         const cartCollection = client.db("sportsDb").collection("carts");
         const userCollection = client.db("sportsDb").collection("users");
 
         // users related api
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result)
+        })
+
+
         app.post('/users', async (req, res) => {
             const user = req.body;
             const query = { email: user.email }
@@ -46,7 +52,7 @@ async function run() {
 
         // class related api
         app.get('/classes', async (req, res) => {
-            const result = await classeCollection.find({}).toArray();
+            const result = await classCollection.find({}).toArray();
             res.send(result)
         })
 
