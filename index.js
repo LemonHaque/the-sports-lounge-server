@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -32,6 +33,13 @@ async function run() {
         const cartCollection = client.db("sportsDb").collection("carts");
         const userCollection = client.db("sportsDb").collection("users");
 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, env.process.ACCES_TOKEN_SECRET, { expiresIn: '1h' })
+
+            res.send({ token })
+        })
+
         // users related api
         app.get('/users', async (req, res) => {
             const result = await userCollection.find().toArray();
@@ -47,6 +55,19 @@ async function run() {
                 return res.send({ message: 'User Already exists' })
             }
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                },
+            };
+
+            const result = await userCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
