@@ -30,18 +30,29 @@ async function run() {
         const classeCollection = client.db("sportsDb").collection("classes");
         const instructorCollection = client.db("sportsDb").collection("instructors");
         const cartCollection = client.db("sportsDb").collection("carts");
+        const userCollection = client.db("sportsDb").collection("users");
 
+        // users related api
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+
+        // class related api
         app.get('/classes', async (req, res) => {
             const result = await classeCollection.find({}).toArray();
             res.send(result)
         })
+
+        // instructors related api
         app.get('/instructors', async (req, res) => {
             const result = await instructorCollection.find({}).toArray();
             res.send(result)
         })
 
 
-        // cart collection api
+        // cart related api
         app.get('/carts', async (req, res) => {
             const email = req.query.email;
             if (!email) {
@@ -66,7 +77,6 @@ async function run() {
             res.send(result);
 
         })
-
 
 
         // Send a ping to confirm a successful connection
