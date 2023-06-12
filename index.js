@@ -62,10 +62,10 @@ async function run() {
             const query = { email: email }
             const user = await userCollection.findOne(query);
             if (user?.role !== 'admin') {
-              return res.status(403).send({ error: true, message: 'forbidden message' });
+                return res.status(403).send({ error: true, message: 'forbidden message' });
             }
             next();
-          }
+        }
 
 
         // users related api
@@ -118,7 +118,7 @@ async function run() {
             res.send(result)
         })
 
-        app.post('/classes', async(req,res)=>{
+        app.post('/classes', verifyJWT, verifyAdmin, async (req, res) => {
             const newItem = req.body;
             const result = await classCollection.insertOne(newItem);
             res.send(result);
