@@ -124,6 +124,13 @@ async function run() {
             res.send(result);
         })
 
+        app.delete('/classes/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await classCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // instructors related api
         app.get('/instructors', async (req, res) => {
             const result = await instructorCollection.find({}).toArray();
